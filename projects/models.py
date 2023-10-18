@@ -80,3 +80,44 @@ class Team(models.Model):
     class Meta:
         verbose_name = 'Команда'
         verbose_name_plural = 'Команды'
+
+
+class Membership(models.Model):
+    member = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name='Участник')
+    team = models.ForeignKey(
+        Team,
+        on_delete=models.CASCADE,
+        verbose_name='Команда')
+    prefers_teammates = models.ManyToManyField(
+        CustomUser,
+        related_name='preferred_teammates',
+        blank=True,
+        null=True,
+        verbose_name='Предпочитаемый тиммейт')
+    not_prefers_teammates = models.ManyToManyField(
+        CustomUser,
+        related_name='non_preferred_teammates',
+        blank=True,
+        null=True,
+        verbose_name='Непредпочтительный тиммейт')
+    prefers_project_manager = models.ForeignKey(
+        ProjectManager,
+        related_name='preferred_project_manager',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Предпочитаемый ПМ')
+    not_prefers_project_manager = models.ForeignKey(
+        'ProjectManager',
+        related_name='non_preferred_project_manager',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Непредпочтительный ПМ')
+
+    class Meta:
+        verbose_name = 'Участие в команде'
+        verbose_name_plural = 'Участие в команде'

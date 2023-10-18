@@ -2,11 +2,12 @@ from django import forms
 from django.contrib import admin
 
 from accounts.models import CustomUser
-from .models import ProjectManager, Team, TimeSlot
+from .models import Membership, ProjectManager, Team, TimeSlot
 
 
 admin.site.register(ProjectManager)
 admin.site.register(TimeSlot)
+admin.site.register(Membership)
 
 
 class TeamAdminForm(forms.ModelForm):
