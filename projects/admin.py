@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import ProjectManager, Team, TimeSlot
+
+
+admin.site.register(ProjectManager)
+admin.site.register(Team)
+admin.site.register(TimeSlot)
