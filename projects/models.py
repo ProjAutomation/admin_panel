@@ -56,3 +56,8 @@ class Team(models.Model):
         on_delete=models.CASCADE,
         related_name='project_manager'
     )
+
+    def __str__(self):
+        return (
+            f'PM - {self.project_manager},',
+            f'Созвон в {self.time_slot}')
