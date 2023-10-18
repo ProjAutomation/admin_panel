@@ -23,9 +23,15 @@ class ProjectManager(AbstractUser):
     end_from = models.TimeField(
         verbose_name='Конец рабочего дня'
     )
+    groups = None
+    user_permissions = None
 
     def __str__(self):
         return f'{self.name} {self.surname}'
+
+    class Meta:
+        verbose_name = 'Проджект менеджер'
+        verbose_name_plural = 'Проджект менеджеры'
 
 
 class TimeSlot(models.Model):
@@ -35,7 +41,7 @@ class TimeSlot(models.Model):
     project_manager = models.ForeignKey(
         ProjectManager,
         on_delete=models.CASCADE,
-        related_name='project_manager'
+        related_name='timeslots'
     )
 
     def __str__(self):
@@ -44,25 +50,33 @@ class TimeSlot(models.Model):
     def is_available(self):
         return not self.is_occupied
 
+    class Meta:
+        verbose_name = 'Тайм-слот'
+        verbose_name_plural = 'Тайм-слоты'
+
 
 class Team(models.Model):
-    member = models.ForeignKey(
+    members = models.ManyToManyField(
         CustomUser,
-        on_delete=models.CASCADE,
-        related_name='team',
+        related_name='teams',
+        verbose_name='Члены команды'
     )
-    time_slot = models.OneToOneField(
+    time_slot = models.ForeignKey(
         TimeSlot,
         on_delete=models.CASCADE,
-        related_name='time_slot',
+        related_name='team',
+        verbose_name='Тайм-слот'
     )
     project_manager = models.ForeignKey(
         ProjectManager,
         on_delete=models.CASCADE,
-        related_name='project_manager'
+        related_name='teams_managed',
+        verbose_name='Проджект менеджер'
     )
 
     def __str__(self):
-        return (
-            f'PM - {self.project_manager},',
-            f'Созвон в {self.time_slot}')
+        return f'Team - PM: {self.project_manager}, Slot: {self.time_slot}'
+
+    class Meta:
+        verbose_name = 'Команда'
+        verbose_name_plural = 'Команды'

@@ -7,9 +7,9 @@ class CustomUser(AbstractUser):
     BEGINNER_PLUS = 'Новичок+'
     JUNIOR = 'Джун'
     SKILL_CHOICES = [
-        (BEGINNER,),
-        (BEGINNER_PLUS,),
-        (JUNIOR,),
+        (BEGINNER, 'Новичок'),
+        (BEGINNER_PLUS, 'Новичок+'),
+        (JUNIOR, 'Джун'),
     ]
     name = models.CharField(
         max_length=200,
@@ -30,7 +30,7 @@ class CustomUser(AbstractUser):
         verbose_name='С Дальнего Востока')
 
     def __str__(self):
-        return f'{self.name} {self.surname}'
+        return self.username
 
     @property
     def is_from_far_east(self):

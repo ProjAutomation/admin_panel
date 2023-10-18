@@ -13,6 +13,7 @@ class CustomUserAdmin(UserAdmin):
         "email",
         "username",
         "is_staff",
+        "skill",
     ]
     fieldsets = UserAdmin.fieldsets
     add_fieldsets = UserAdmin.add_fieldsets
