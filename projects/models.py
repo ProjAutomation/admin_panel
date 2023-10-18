@@ -32,6 +32,11 @@ class TimeSlot(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     is_occupied = models.BooleanField(default=False)
+    project_manager = models.ForeignKey(
+        ProjectManager,
+        on_delete=models.CASCADE,
+        related_name='project_manager'
+    )
 
     def __str__(self):
         return f'{self.start_time} - {self.end_time}'
