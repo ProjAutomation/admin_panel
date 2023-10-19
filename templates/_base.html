@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}" />
   </head>
   <body>
+    {% if messages %}
+      <div class="container messages mt-3">
+          {% for message in messages %}
+            <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+              {{ message }}
+            </div>
+          {% endfor %}
+      </div>
+    {% endif %}
     {% block content %}{% endblock %}
   </body>
 </html>
