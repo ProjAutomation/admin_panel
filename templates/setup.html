@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}
+  Проект, настройка и запуск
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="text-center mt-3 mb-5">Запуск проекта "Project Automation"</h1>
+    <div class="row justify-content-center">
+      <form class="col-6" method="POST" action="{% url 'projects.invite' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="emails" class="form-label">Email-ы студентов <mark>(пока руками, потом будут браться из базы)</mark></label>
+          <textarea name="emails" id="emails" class="form-control" rows="3">amiskov@ya.ru, amiskov@gmail.com</textarea>
+          <div class="form-text">Перечислите email-адреса через запятую.</div>
+        </div>
+        <button class="btn btn-primary">Отправить оповещение</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
