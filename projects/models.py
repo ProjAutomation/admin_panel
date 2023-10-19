@@ -94,19 +94,22 @@ class Membership(models.Model):
     prefers_teammates = models.ManyToManyField(
         CustomUser,
         related_name='preferred_teammates',
-        blank=True,
+        default=None,
         null=True,
+        blank=True,
         verbose_name='Предпочитаемый тиммейт')
     not_prefers_teammates = models.ManyToManyField(
         CustomUser,
         related_name='non_preferred_teammates',
-        blank=True,
+        default=None,
         null=True,
+        blank=True,
         verbose_name='Непредпочтительный тиммейт')
     prefers_project_manager = models.ForeignKey(
         ProjectManager,
         related_name='preferred_project_manager',
         on_delete=models.CASCADE,
+        default=None,
         null=True,
         blank=True,
         verbose_name='Предпочитаемый ПМ')
@@ -114,6 +117,7 @@ class Membership(models.Model):
         'ProjectManager',
         related_name='non_preferred_project_manager',
         on_delete=models.CASCADE,
+        default=None,
         null=True,
         blank=True,
         verbose_name='Непредпочтительный ПМ')
