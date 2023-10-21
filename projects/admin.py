@@ -1,36 +1,12 @@
-from django import forms
 from django.contrib import admin
 
-from accounts.models import CustomUser
-from .models import Membership, ProjectManager, Team, TimeSlot
+from .models import Brief, Project, MeetingsTimeSlot, MeetingsTimeSlotUser
+from .models import ProjectStudent, TrainingStream
 
 
-admin.site.register(ProjectManager)
-admin.site.register(TimeSlot)
-admin.site.register(Membership)
-
-
-class TeamAdminForm(forms.ModelForm):
-    members = forms.ModelMultipleChoiceField(
-        queryset=CustomUser.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-    )
-
-    class Meta:
-        model = Team
-        fields = '__all__'
-
-
-class TeamAdmin(admin.ModelAdmin):
-    form = TeamAdminForm
-    list_display = ['project_manager', 'time_slot', 'list_members']
-
-    def list_members(self, obj):
-        return ", ".join(
-            [f'{member.name} {member.surname}' for member in obj.members.all()]
-            )
-
-    list_members.short_description = "Члены команды"
-
-
-admin.site.register(Team, TeamAdmin)
+admin.site.register(Brief)
+admin.site.register(Project)
+admin.site.register(TrainingStream)
+admin.site.register(ProjectStudent)
+admin.site.register(MeetingsTimeSlot)
+admin.site.register(MeetingsTimeSlotUser)

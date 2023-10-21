@@ -1,127 +1,123 @@
-from django.contrib.auth.models import AbstractUser
+# from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from accounts.models import CustomUser
+from accounts.models import CustomUser, Level
 
 
-class ProjectManager(AbstractUser):
-    name = models.CharField(
-        max_length=200,
-        verbose_name='Имя')
-    surname = models.CharField(
-        max_length=200,
-        verbose_name='Фамилия')
-    email = models.EmailField(
-        max_length=254,
-        verbose_name='Электронный адрес',
-        unique=True)
-    telegram = models.CharField(
-        max_length=200,
-        verbose_name='Телеграмм')
-    start_from = models.TimeField(
-        verbose_name='Начало рабочего дня')
-    end_from = models.TimeField(
-        verbose_name='Конец рабочего дня'
+class Brief(models.Model):
+    title = models.CharField(
+        max_length=10,
+        verbose_name='Название')
+    description = models.TextField(
+        verbose_name='Описание проекта'
     )
-    groups = None
-    user_permissions = None
-
-    def __str__(self):
-        return f'{self.name} {self.surname}'
-
-    class Meta:
-        verbose_name = 'Проджект менеджер'
-        verbose_name_plural = 'Проджект менеджеры'
-
-
-class TimeSlot(models.Model):
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    is_occupied = models.BooleanField(default=False)
-    project_manager = models.ForeignKey(
-        ProjectManager,
+    level = models.ForeignKey(
+        Level,
         on_delete=models.CASCADE,
-        related_name='timeslots'
+        related_name='brief'
     )
 
     def __str__(self):
-        return f'{self.start_time} - {self.end_time}'
-
-    def is_available(self):
-        return not self.is_occupied
+        return self.title
 
     class Meta:
-        verbose_name = 'Тайм-слот'
-        verbose_name_plural = 'Тайм-слоты'
+        verbose_name = 'Бриф'
+        verbose_name_plural = 'Брифы'
 
 
-class Team(models.Model):
-    members = models.ManyToManyField(
+class TrainingStream(models.Model):
+    brief = models.ForeignKey(
+        Brief,
+        on_delete=models.CASCADE,
+        related_name='stream'
+    )
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f'{self.start_date} - {self.end_date}'
+
+    class Meta:
+        verbose_name = 'Поток'
+        verbose_name_plural = 'Потоки'
+
+
+class Project(models.Model):
+    manager = models.ForeignKey(
         CustomUser,
-        related_name='teams',
-        verbose_name='Члены команды'
-    )
-    time_slot = models.ForeignKey(
-        TimeSlot,
         on_delete=models.CASCADE,
-        related_name='team',
-        verbose_name='Тайм-слот'
+        related_name='project'
     )
-    project_manager = models.ForeignKey(
-        ProjectManager,
+    stream = models.ForeignKey(
+        TrainingStream,
         on_delete=models.CASCADE,
-        related_name='teams_managed',
-        verbose_name='Проджект менеджер'
+        related_name='project'
+    )
+    meeting_startime = models.TimeField()
+
+    def __str__(self):
+        return (f'Поток {self.stream}, менеджер {self.manager},'
+                f'начало созвона {self.meeting_startime}')
+
+    class Meta:
+        verbose_name = 'Проект'
+        verbose_name_plural = 'Проекты'
+
+
+class ProjectStudent(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='students'
+    )
+    student = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='projects'
     )
 
     def __str__(self):
-        return f'Team - PM: {self.project_manager}, Slot: {self.time_slot}'
+        return f'Студент {self.student} участвует в проекте {self.project},'
 
     class Meta:
-        verbose_name = 'Команда'
-        verbose_name_plural = 'Команды'
+        verbose_name = 'Участие студента в проекте'
+        verbose_name_plural = 'Участие студента в проектах'
 
 
-class Membership(models.Model):
-    member = models.ForeignKey(
-        CustomUser,
+class MeetingsTimeSlot(models.Model):
+    training_stream = models.ForeignKey(
+        TrainingStream,
         on_delete=models.CASCADE,
-        verbose_name='Участник')
-    team = models.ForeignKey(
-        Team,
-        on_delete=models.CASCADE,
-        verbose_name='Команда')
-    prefers_teammates = models.ManyToManyField(
-        CustomUser,
-        related_name='preferred_teammates',
-        default=None,
-        null=True,
-        blank=True,
-        verbose_name='Предпочитаемый тиммейт')
-    not_prefers_teammates = models.ManyToManyField(
-        CustomUser,
-        related_name='non_preferred_teammates',
-        default=None,
-        null=True,
-        blank=True,
-        verbose_name='Непредпочтительный тиммейт')
-    prefers_project_manager = models.ForeignKey(
-        ProjectManager,
-        related_name='preferred_project_manager',
-        on_delete=models.CASCADE,
-        default=None,
-        null=True,
-        blank=True,
-        verbose_name='Предпочитаемый ПМ')
-    not_prefers_project_manager = models.ForeignKey(
-        'ProjectManager',
-        related_name='non_preferred_project_manager',
-        on_delete=models.CASCADE,
-        default=None,
-        null=True,
-        blank=True,
-        verbose_name='Непредпочтительный ПМ')
+        related_name='time_slot'
+    )
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return f'Студент {self.student} участвует в проекте {self.project}.'
 
     class Meta:
-        verbose_name = 'Участие в команде'
-        verbose_name_plural = 'Участие в команде'
+        verbose_name = 'Тайм-слот встреч'
+        verbose_name_plural = 'Тайм-слоты встреч'
+
+
+class MeetingsTimeSlotUser(models.Model):
+    meetings_time_slot = models.ForeignKey(
+        MeetingsTimeSlot,
+        on_delete=models.CASCADE,
+        related_name='meetings_time_slot'
+    )
+    student = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='meetings_time_slot'
+    )
+
+    def __str__(self):
+        return (
+            f'Студент {self.student} участвует в'
+            f'созвоне в {self.meetings_time_slot}')
+
+    class Meta:
+        verbose_name = 'Тайм-слот встреч пользователя'
+        verbose_name_plural = 'Тайм-слоты встреч пользователя'

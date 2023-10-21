@@ -3,34 +3,15 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    BEGINNER = 'Новичок'
-    BEGINNER_PLUS = 'Новичок+'
-    JUNIOR = 'Джун'
-    SKILL_CHOICES = [
-        (BEGINNER, 'Новичок'),
-        (BEGINNER_PLUS, 'Новичок+'),
-        (JUNIOR, 'Джун'),
-    ]
-    name = models.CharField(
+    telegram_username = models.CharField(
         max_length=200,
-        verbose_name='Имя')
-    surname = models.CharField(
-        max_length=200,
-        verbose_name='Фамилия')
-    email = models.EmailField(
-        max_length=254,
-        verbose_name='Электронный адрес',
-        unique=True)
-    skill = models.CharField(
-        max_length=9,
-        choices=SKILL_CHOICES,
-        default=BEGINNER)
-    from_far_east = models.BooleanField(
-        default=False,
-        verbose_name='С Дальнего Востока')
+        verbose_name='Аккаунт в телеграмме')
+    timezone = models.CharField(
+        max_length=63,
+        verbose_name='Часовой пояс')
 
     def __str__(self):
-        return self.username
+        return self.telegram_username
 
     @property
     def is_from_far_east(self):
@@ -45,3 +26,67 @@ class CustomUser(AbstractUser):
             raise PermissionError(
                 'Only admin users can set "from_far_east" attribute.'
                 )
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+
+class Level(models.Model):
+    title = models.CharField(
+        max_length=10,
+        verbose_name='Уровень студента')
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = 'Уровень знаний'
+        verbose_name_plural = 'Уровни знаний'
+
+
+class StudentLevel(models.Model):
+    student = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='student_level'
+    )
+    level = models.ForeignKey(
+        Level,
+        on_delete=models.CASCADE,
+        related_name='student_level'
+    )
+
+    class Meta:
+        verbose_name = 'Уровень студента'
+        verbose_name_plural = 'Уровни студентов'
+
+
+class UserAvoidance(models.Model):
+    avoided_user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='avoiding_user'
+    )
+
+    def __str__(self):
+        return self.avoided_user
+
+    class Meta:
+        verbose_name = 'Нежелательный тиммейт'
+        verbose_name_plural = 'Нежелательные тиммейты'
+
+
+class UserPreference(models.Model):
+    preferred_user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='preferring_user'
+    )
+
+    def __str__(self):
+        return self.preferred_user
+
+    class Meta:
+        verbose_name = 'Желательный тиммейт'
+        verbose_name_plural = 'Желательные тиммейты'
