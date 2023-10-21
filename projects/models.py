@@ -5,7 +5,7 @@ from accounts.models import CustomUser, Level
 
 class Brief(models.Model):
     title = models.CharField(
-        max_length=10,
+        max_length=128,
         verbose_name='Название')
     description = models.TextField(
         verbose_name='Описание проекта'
@@ -13,7 +13,7 @@ class Brief(models.Model):
     level = models.ForeignKey(
         Level,
         on_delete=models.CASCADE,
-        related_name='brief'
+        related_name='briefs'
     )
 
     def __str__(self):
@@ -28,7 +28,7 @@ class TrainingStream(models.Model):
     brief = models.ForeignKey(
         Brief,
         on_delete=models.CASCADE,
-        related_name='stream'
+        related_name='streams'
     )
     start_date = models.DateField()
     end_date = models.DateField()
@@ -45,12 +45,12 @@ class Project(models.Model):
     manager = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='project'
+        related_name='managed_projects'
     )
     stream = models.ForeignKey(
         TrainingStream,
         on_delete=models.CASCADE,
-        related_name='project'
+        related_name='streams'
     )
     meeting_startime = models.TimeField()
 
@@ -67,16 +67,18 @@ class ProjectStudent(models.Model):
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
-        related_name='students'
+        related_name='students_in_project'
     )
     student = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='projects'
+        related_name='participating_projects'
     )
 
     def __str__(self):
-        return f'Студент {self.student.username} участвует в проекте {self.project},'
+        return (
+            f'Студент {self.student.username}'
+            f'участвует в проекте {self.project}')
 
     class Meta:
         verbose_name = 'Участие студента в проекте'
@@ -87,7 +89,7 @@ class MeetingsTimeSlot(models.Model):
     training_stream = models.ForeignKey(
         TrainingStream,
         on_delete=models.CASCADE,
-        related_name='time_slot'
+        related_name='time_slots'
     )
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -107,7 +109,7 @@ class MeetingsTimeSlotUser(models.Model):
         on_delete=models.CASCADE,
         related_name='meetings_time_slot'
     )
-    student = models.ForeignKey(
+    user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         related_name='meetings_time_slot'

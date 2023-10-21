@@ -34,7 +34,7 @@ class CustomUser(AbstractUser):
 
 class Level(models.Model):
     title = models.CharField(
-        max_length=10,
+        max_length=128,
         verbose_name='Уровень студента')
 
     def __str__(self):
@@ -63,14 +63,19 @@ class StudentLevel(models.Model):
 
 
 class UserAvoidance(models.Model):
-    avoided_user = models.ForeignKey(
+    user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         related_name='avoiding_user'
     )
+    avoided_user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='avoided_user'
+    )
 
     def __str__(self):
-        return f"Avoiding {self.avoided_user.username}"
+        return f"{self.user} avoids {self.avoided_user.username}"
 
     class Meta:
         verbose_name = 'Нежелательный тиммейт'
@@ -78,10 +83,14 @@ class UserAvoidance(models.Model):
 
 
 class UserPreference(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='preferring_user')
     preferred_user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='preferring_user'
+        related_name='preferred_user'
     )
 
     def __str__(self):
