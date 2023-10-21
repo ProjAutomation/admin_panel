@@ -70,7 +70,7 @@ class UserAvoidance(models.Model):
     )
 
     def __str__(self):
-        return self.avoided_user
+        return f"Avoiding {self.avoided_user.username}"
 
     class Meta:
         verbose_name = 'Нежелательный тиммейт'
@@ -85,7 +85,7 @@ class UserPreference(models.Model):
     )
 
     def __str__(self):
-        return self.preferred_user
+        return f"Preferring {self.preferred_user.username}"
 
     class Meta:
         verbose_name = 'Желательный тиммейт'
