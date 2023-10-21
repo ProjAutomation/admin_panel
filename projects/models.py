@@ -1,4 +1,3 @@
-# from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from accounts.models import CustomUser, Level
@@ -56,7 +55,7 @@ class Project(models.Model):
     meeting_startime = models.TimeField()
 
     def __str__(self):
-        return (f'Поток {self.stream}, менеджер {self.manager},'
+        return (f'Поток {self.stream}, менеджер {self.manager.username},'
                 f'начало созвона {self.meeting_startime}')
 
     class Meta:
@@ -77,7 +76,7 @@ class ProjectStudent(models.Model):
     )
 
     def __str__(self):
-        return f'Студент {self.student} участвует в проекте {self.project},'
+        return f'Студент {self.student.username} участвует в проекте {self.project},'
 
     class Meta:
         verbose_name = 'Участие студента в проекте'
@@ -94,7 +93,8 @@ class MeetingsTimeSlot(models.Model):
     end_time = models.TimeField()
 
     def __str__(self):
-        return f'Студент {self.student} участвует в проекте {self.project}.'
+        return (f'Поток {self.training_stream}, созвоны с '
+                f'{self.start_time} до {self.end_time}')
 
     class Meta:
         verbose_name = 'Тайм-слот встреч'
@@ -115,7 +115,7 @@ class MeetingsTimeSlotUser(models.Model):
 
     def __str__(self):
         return (
-            f'Студент {self.student} участвует в'
+            f'Студент {self.student.username} участвует в'
             f'созвоне в {self.meetings_time_slot}')
 
     class Meta:
