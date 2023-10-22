@@ -44,6 +44,8 @@ class DevmanUserAdmin(UserAdmin):
     ]
     fieldsets = UserAdmin.fieldsets + (
         ('Уровень (для студентов)', {'fields': ('level',)}),
+        ('Часовой пояс', {'fields': ('timezone',)}),
+        ('Telegram Username', {'fields': ('telegram_username',)}),
     )
 
     add_fieldsets = UserAdmin.add_fieldsets
