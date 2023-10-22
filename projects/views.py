@@ -31,7 +31,7 @@ def select_slot(request, stream_pk):
     time_intervals = []
 
     t = datetime.min
-    for meeting_start_time in meeting_time_slots:  # TODO: Repeat for all slots
+    for meeting_start_time in meeting_time_slots:
         current = timedelta(hours=meeting_start_time.start_time.hour,
                             minutes=meeting_start_time.start_time.minute)
         final = timedelta(hours=meeting_start_time.end_time.hour,
@@ -45,7 +45,6 @@ def select_slot(request, stream_pk):
             interval['end'] = (t+current).time()
 
             time_intervals.append(interval)
-    print(time_intervals)
 
     if request.method == 'POST':
         meeting_start_time = request.POST.get('project_meeting_time', '')
@@ -97,22 +96,22 @@ def setup(request):
             students = get_user_model().objects.filter(level=level)
             # TODO: exclude students already added to projects for current
             # `training_stream`
-            invite_students(request, students)
+            invite_students(request, students, stream.pk)
     context = {'form': form}
     return render(request, 'setup.html', context=context)
 
 
-def invite_students(request, students):
+def invite_students(request, students, stream_pk):
     subj = 'Приглашение на проект Devman'
     body = render_to_string(
         'project_invitation_email.txt',
         context={
-            # TODO: URL should contain training stream to retrieve time slots
-            'slots_url': request.build_absolute_uri(reverse('projects.slots'))
+            'slots_url': request.build_absolute_uri(
+                reverse('projects.slots', args=[stream_pk])
+            )
         }
     )
     sender_email = settings.EMAIL_SENDER
-    # student_addresses = request.POST.get('emails', '').split(',')
     email_letters = []
     email_addresses = []
     for student in students:
@@ -121,7 +120,6 @@ def invite_students(request, students):
         email_addresses.append(student.email)
         email_letter = (subj, body, sender_email, [student.email])
         email_letters.append(email_letter)
-    print(email_letters)
     try:
         send_mass_mail(email_letters)
         msg = "Приглашения отправлены для {}.".format(
