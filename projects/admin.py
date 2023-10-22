@@ -1,3 +1,42 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Brief, TrainingStream, MeetingsTimeSlot, Project, \
+    ProjectStudent, MeetingsTimeSlotUser
+
+
+@admin.register(Brief)
+class BriefAdmin(admin.ModelAdmin):
+    list_display = ['title', 'level']
+
+
+@admin.register(TrainingStream)
+class TrainingStreamAdmin(admin.ModelAdmin):
+    list_display = ['brief', 'start_date', 'end_date']
+
+
+class MeetingsTimeSlotUserAdminInline(admin.StackedInline):
+    model = MeetingsTimeSlotUser
+    extra = 0
+    raw_id_fields = ['student']
+    verbose_name = 'Студент'
+    verbose_name_plural = 'Студенты'
+
+
+@admin.register(MeetingsTimeSlot)
+class MeetingsTimeSlotStreamAdmin(admin.ModelAdmin):
+    list_display = ['training_stream', 'start_time', 'end_time']
+    inlines = [MeetingsTimeSlotUserAdminInline]
+
+
+class ProjectStudentAdminInline(admin.StackedInline):
+    model = ProjectStudent
+    extra = 0
+    autocomplete_fields = ['student']
+    verbose_name = 'Студент'
+    verbose_name_plural = 'Студенты'
+
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ['stream', 'manager', 'meeting_start_time']
+    inlines = [ProjectStudentAdminInline]
