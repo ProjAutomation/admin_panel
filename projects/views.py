@@ -1,7 +1,8 @@
-from datetime import time
+from datetime import time, timedelta, datetime
 import logging
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+
 from django.urls import reverse
 from django.conf import settings
 from django.core.mail import send_mass_mail
@@ -12,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 
 from .forms import InvitationForm
+from .models import TrainingStream, MeetingsTimeSlot, Project, ProjectStudent
 
 
 logger = logging.getLogger(__name__)
@@ -23,29 +25,61 @@ def home(request):
 
 @require_http_methods(['GET', 'POST'])
 @login_required
-def slots(request):
-    student = request.user
+def select_slot(request, stream_pk):
+    meeting_time_slots = MeetingsTimeSlot.objects.filter(
+        training_stream__pk=stream_pk)
+    time_intervals = []
+
+    t = datetime.min
+    for meeting_start_time in meeting_time_slots:  # TODO: Repeat for all slots
+        current = timedelta(hours=meeting_start_time.start_time.hour,
+                            minutes=meeting_start_time.start_time.minute)
+        final = timedelta(hours=meeting_start_time.end_time.hour,
+                          minutes=meeting_start_time.end_time.minute)
+        while current < final:
+            interval = {}
+
+            interval['start'] = (t+current).time()
+
+            current += timedelta(minutes=30)
+            interval['end'] = (t+current).time()
+
+            time_intervals.append(interval)
+    print(time_intervals)
+
     if request.method == 'POST':
-        slot = request.POST.get('slot', '')
+        meeting_start_time = request.POST.get('project_meeting_time', '')
         context = {}
-        if slot:
+        if meeting_start_time:
+            student = request.user
+
+            # TODO: Fake data! Use real.
+            # ...............
+            project = Project.objects.create(
+                manager_id=1,
+                stream_id=1,
+                meeting_start_time=meeting_start_time
+            )
+            ProjectStudent.objects.create(
+                student=student,
+                project=project
+            )
+            # ...............
+
             messages.add_message(
                 request, messages.SUCCESS,
-                f"Вы выбрали слот {slot}, точное время пришлём вам в Телеграмм за день до старта проекта.",
+                f"Вы добавлены в проект со временем созвона {meeting_start_time}.",
                 extra_tags='alert alert-success'
             )
         else:
             messages.add_message(
                 request, messages.ERROR,
-                "Слот не выбран. Мы напишем вам в Телеграм для уточнения.",
+                "Время созвона не выбрано, мы напишем вам в Телеграм для уточнения.",
                 extra_tags='alert alert-warning'
             )
     else:
         context = {
-            'slots': [
-                {'start': time(hour=9), 'end': time(hour=13)},
-                {'start': time(hour=18), 'end': time(hour=21)},
-            ]
+            'slots':  time_intervals
         }
     return render(request, 'slots.html', context=context)
 

@@ -69,12 +69,12 @@ class ProjectStudent(models.Model):
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
-        related_name='students_in_project'
+        related_name='projects'
     )
     student = models.ForeignKey(
         DevmanUser,
         on_delete=models.CASCADE,
-        related_name='participating_projects'
+        related_name='students'
     )
 
     def __str__(self):
