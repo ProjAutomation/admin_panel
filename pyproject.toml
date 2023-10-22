@@ -10,6 +10,8 @@ python = "^3.11"
 Django = "^4.2.6"
 gunicorn = "^21.2.0"
 environs = "^9.5.0"
+django-crispy-forms = "^2.1"
+crispy-bootstrap5 = "^0.7"
 
 
 [build-system]

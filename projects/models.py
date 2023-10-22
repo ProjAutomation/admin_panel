@@ -1,4 +1,6 @@
 from django.db import models
+from django.template.defaultfilters import date as _date
+
 
 from accounts.models import DevmanUser, Level
 
@@ -28,13 +30,13 @@ class TrainingStream(models.Model):
     brief = models.ForeignKey(
         Brief,
         on_delete=models.CASCADE,
-        related_name='streams'
+        related_name='streams',
     )
     start_date = models.DateField()
     end_date = models.DateField()
 
     def __str__(self):
-        return f'{self.brief} {self.start_date}-{self.end_date}'
+        return f'{self.brief} {_date(self.start_date, "d.m")}—{_date(self.end_date, "d.m")}'
 
     class Meta:
         verbose_name = 'Поток'

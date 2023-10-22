@@ -6,6 +6,14 @@ from .models import DevmanUser, Level, UserAvoidance
 from .models import UserPreference
 
 
+class UserLevelAdminInline(admin.TabularInline):
+    model = Level
+    extra = 0
+    # autocomplete_fields = ['avoided_user']
+    # verbose_name_plural = '🛑 Не хочет работать с'
+    # verbose_name = 'Нежелательный юзер'
+
+
 class UserAvoidanceAdminInline(admin.StackedInline):
     model = UserAvoidance
     fk_name = 'user'
@@ -30,10 +38,14 @@ class DevmanUserAdmin(UserAdmin):
     model = DevmanUser
     list_display = [
         "username",
+        'level',
         "email",
         "is_staff",
     ]
-    fieldsets = UserAdmin.fieldsets
+    fieldsets = UserAdmin.fieldsets + (
+        ('Уровень (для студентов)', {'fields': ('level',)}),
+    )
+
     add_fieldsets = UserAdmin.add_fieldsets
     inlines = [UserAvoidanceAdminInline, UserPreferenceAdminInline]
 

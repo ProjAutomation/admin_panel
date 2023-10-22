@@ -8,6 +8,10 @@ from django.core.mail import send_mass_mail
 from django.template.loader import render_to_string
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+
+from .forms import InvitationForm
 
 
 logger = logging.getLogger(__name__)
@@ -18,7 +22,9 @@ def home(request):
 
 
 @require_http_methods(['GET', 'POST'])
+@login_required
 def slots(request):
+    student = request.user
     if request.method == 'POST':
         slot = request.POST.get('slot', '')
         context = {}
@@ -44,29 +50,49 @@ def slots(request):
     return render(request, 'slots.html', context=context)
 
 
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
+@login_required
 def setup(request):
-    return render(request, 'setup.html')
+    form = InvitationForm()
+
+    if request.method == 'POST':
+        form = InvitationForm(request.POST)
+        if form.is_valid():
+            stream = form.cleaned_data['training_stream']
+            level = stream.brief.level
+            students = get_user_model().objects.filter(level=level)
+            # TODO: exclude students already added to projects for current
+            # `training_stream`
+            invite_students(request, students)
+    context = {'form': form}
+    return render(request, 'setup.html', context=context)
 
 
-@require_http_methods(['POST'])
-def invite(request):
+def invite_students(request, students):
     subj = 'Приглашение на проект Devman'
     body = render_to_string(
         'project_invitation_email.txt',
         context={
+            # TODO: URL should contain training stream to retrieve time slots
             'slots_url': request.build_absolute_uri(reverse('projects.slots'))
         }
     )
     sender_email = settings.EMAIL_SENDER
-    student_addresses = request.POST.get('emails', '').split(',')
-    emails = []
-    for student_addr in student_addresses:
-        email = (subj, body, sender_email, [student_addr])
-        emails.append(email)
+    # student_addresses = request.POST.get('emails', '').split(',')
+    email_letters = []
+    email_addresses = []
+    for student in students:
+        if not student.email:
+            continue
+        email_addresses.append(student.email)
+        email_letter = (subj, body, sender_email, [student.email])
+        email_letters.append(email_letter)
+    print(email_letters)
     try:
-        send_mass_mail(emails)
-        messages.add_message(request, messages.SUCCESS, "Приглашения отправлены!",
+        send_mass_mail(email_letters)
+        msg = "Приглашения отправлены для {}.".format(
+            ', '.join(email_addresses))
+        messages.add_message(request, messages.SUCCESS, msg,
                              extra_tags='alert alert-success')
     except Exception as e:
         logger.error(e)

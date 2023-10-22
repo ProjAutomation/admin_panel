@@ -17,6 +17,20 @@
           {% endfor %}
       </div>
     {% endif %}
+
+    <nav class="navbar container bg-body-tertiary">
+      {% if user.is_authenticated %}
+        <span class="navbar-brand">{{ user.username }}</span>
+      {% endif %}
+
+      <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Log Out</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Log In</a></li>
+        {% endif %}
+      </ul>
+    </nav>
     {% block content %}{% endblock %}
   </body>
 </html>

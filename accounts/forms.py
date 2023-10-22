@@ -13,3 +13,4 @@ class DevmanUserChangeForm(UserChangeForm):
     class Meta:
         model = DevmanUser
         fields = UserChangeForm.Meta.fields
+        extra_fields = ['level']
