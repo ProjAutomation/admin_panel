@@ -18,12 +18,13 @@
           {% for slot in slots %}
             <div class="form-check">
               <input required 
-                {% if forloop.counter == 1 %}checked{% endif %}
+                {% if slot.disabled %}disabled{% endif %}
                 class="form-check-input" type="radio" name="project_meeting_time" 
                 value="{{slot.start}},{{slot.manager_id}}"
                 id="slot{{ forloop.counter }}" />
               <label class="form-check-label" for="slot{{ forloop.counter }}">
                 {{ slot.start }}—{{ slot.end }}
+                {% if slot.disabled %}занято{% endif %}
               </label>
             </div>
           {% endfor %}

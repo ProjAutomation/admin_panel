@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.core.exceptions import BadRequest
+from django.db.models import Count
 
 
 from .forms import InvitationForm
@@ -19,6 +20,8 @@ from .models import TrainingStream, MeetingsTimeSlot, Project, ProjectStudent
 
 
 logger = logging.getLogger(__name__)
+
+STUDENTS_ON_PROJECT_LIMIT = 1
 
 
 def home(request):
@@ -31,12 +34,17 @@ def select_slot(request, stream_pk):
     stream = get_object_or_404(TrainingStream, pk=stream_pk)
     student = request.user
 
-    stream_projects = Project.objects.filter(
-        stream=stream,
-        students__pk__exact=student.pk
-    )
-    if stream_projects:
-        raise BadRequest(f"Student {student.username} already registered for a project")
+    stream_projects = Project.objects.filter(stream=stream).annotate(students_count=Count('students'))
+    if stream_projects.filter(students__pk__exact=student.pk):
+        raise BadRequest(
+            f"Student {student.username} already registered for a project")
+    
+    occupied_time_slots = set()
+    for p in stream_projects:
+        if p.students_count >= STUDENTS_ON_PROJECT_LIMIT:
+            occupied_time_slots.add(p.meeting_start_time) 
+    
+    print(occupied_time_slots)
 
     meeting_time_slots = MeetingsTimeSlot.objects.filter(
         training_stream=stream)
@@ -62,6 +70,10 @@ def select_slot(request, stream_pk):
             current += timedelta(minutes=30)
             interval['end'] = (t+current).time()
 
+            if interval['start'] in occupied_time_slots:
+                interval['disabled'] = True
+
+
             time_intervals.append(interval)
     context['slots'] = time_intervals
 
@@ -78,11 +90,10 @@ def select_slot(request, stream_pk):
                 meeting_start_time=meeting_start_time
             )
 
-            students_on_project_limit = 3
-
             occupied_students = project.students.all()
-            if is_created or len(occupied_students) < students_on_project_limit:
-                print(f'Project exists with less than {students_on_project_limit} students.')
+            if is_created or len(occupied_students) < STUDENTS_ON_PROJECT_LIMIT:
+                print(
+                    f'Project exists with less than {STUDENTS_ON_PROJECT_LIMIT} students.')
                 ProjectStudent.objects.create(
                     student=student,
                     project=project
