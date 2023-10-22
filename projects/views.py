@@ -21,7 +21,7 @@ from .models import TrainingStream, MeetingsTimeSlot, Project, ProjectStudent
 
 logger = logging.getLogger(__name__)
 
-STUDENTS_ON_PROJECT_LIMIT = 1
+STUDENTS_ON_PROJECT_LIMIT = 2
 
 
 def home(request):
