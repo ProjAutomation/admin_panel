@@ -14,18 +14,9 @@ class TrainingStreamAdmin(admin.ModelAdmin):
     list_display = ['brief', 'start_date', 'end_date']
 
 
-class MeetingsTimeSlotUserAdminInline(admin.StackedInline):
-    model = MeetingsTimeSlotUser
-    extra = 0
-    raw_id_fields = ['student']
-    verbose_name = 'Студент'
-    verbose_name_plural = 'Студенты'
-
-
 @admin.register(MeetingsTimeSlot)
 class MeetingsTimeSlotStreamAdmin(admin.ModelAdmin):
     list_display = ['training_stream', 'start_time', 'end_time']
-    inlines = [MeetingsTimeSlotUserAdminInline]
 
 
 class ProjectStudentAdminInline(admin.StackedInline):
