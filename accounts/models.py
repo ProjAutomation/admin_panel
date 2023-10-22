@@ -94,7 +94,7 @@ class UserPreference(models.Model):
     )
 
     def __str__(self):
-        return f"Preferring {self.preferred_user.username}"
+        return f"{self.user.username} prefers {self.preferred_user.username}"
 
     class Meta:
         verbose_name = 'Желательный тиммейт'
