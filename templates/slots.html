@@ -7,25 +7,27 @@
 
 {% block content %}
   <div class="container">
-    <h1 class="text-center mt-3">Проект Project Automation</h1>
+    <h1 class="text-center mt-3">Проект "{{project_title}}"</h1>
     <div class="row justify-content-center">
       <form method="POST" action="" class="col-4">
         {% csrf_token %}
-        <h3 class="text-center mb-5">c 17.10 по 23.10</h3>
+        <h4 class="text-center mb-5">c {{start_date|date:'d b.'}} по {{end_date|date:'d b.'}}</h4>
         {% if slots %}
           <p>Выберите время для созвона с командой:</p>
+
           {% for slot in slots %}
             <div class="form-check">
               <input required 
                 {% if forloop.counter == 1 %}checked{% endif %}
                 class="form-check-input" type="radio" name="project_meeting_time" 
-                value="{{slot.start}}" 
+                value="{{slot.start}},{{slot.manager_id}}"
                 id="slot{{ forloop.counter }}" />
               <label class="form-check-label" for="slot{{ forloop.counter }}">
                 {{ slot.start }}—{{ slot.end }}
               </label>
             </div>
           {% endfor %}
+
           <div class="form-check">
             <input required 
             class="form-check-input" type="radio" name="project_meeting_time"
@@ -34,6 +36,7 @@
             <label class="form-check-label" for="slot_nothing">Ни один не подходит</label>
             <mark>Отсылать админу письмо, чтоб договорился персонально?</mark>
           </div>
+
           <div class="mt-3">
             <button type="submit" class="btn btn-primary">Сохранить</button>
           </div>

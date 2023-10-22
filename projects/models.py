@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import date as _date
+from django.contrib.auth import get_user_model
 
 
 from accounts.models import DevmanUser, Level
@@ -55,6 +56,7 @@ class Project(models.Model):
         related_name='streams'
     )
     meeting_start_time = models.TimeField()
+    students = models.ManyToManyField(get_user_model(), through='ProjectStudent')
 
     def __str__(self):
         return (f'Поток {self.stream}, менеджер {self.manager.username},'
