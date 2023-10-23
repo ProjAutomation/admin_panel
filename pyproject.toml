@@ -12,6 +12,7 @@ gunicorn = "^21.2.0"
 environs = "^9.5.0"
 django-crispy-forms = "^2.1"
 crispy-bootstrap5 = "^0.7"
+requests = "^2.31.0"
 
 
 [build-system]
