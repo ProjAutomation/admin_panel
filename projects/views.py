@@ -177,3 +177,16 @@ def invite_students(request, students, stream):
                              "Ошибка при отправке приглашений.",
                              extra_tags='alert alert-danger')
     return redirect('projects.setup')
+
+
+@require_http_methods(['GET', 'POST'])
+@login_required
+def invite(request):
+    form = InvitationForm()
+
+    if request.method == 'POST':
+        form = InvitationForm(request.POST)
+        if form.is_valid():
+            
+    context = {'form': form}
+    return render(request, 'invite.html', context=context)
