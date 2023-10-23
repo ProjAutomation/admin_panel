@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.core.exceptions import BadRequest
 from django.db.models import Count
+from .app_api.discord import create_discord_channel, create_discord_invite
+from .app_api.trello import create_trello_board, create_trello_invite
 
 
 from .forms import InvitationForm
@@ -183,10 +185,28 @@ def invite_students(request, students, stream):
 @login_required
 def invite(request):
     form = InvitationForm()
-
+    context = {'form': form}
     if request.method == 'POST':
         form = InvitationForm(request.POST)
         if form.is_valid():
-            print("test")
-    context = {'form': form}
+            stream = form.cleaned_data['training_stream']
+            stream_projects = Project.objects.get(stream=stream)
+     
+            name = str(stream_projects)
+
+            emails = []
+            students = ProjectStudent.objects.filter(project=stream_projects)
+            for student in students:
+                if student.student.email:
+                    emails.append(student.student.email)
+         
+            print(emails)
+            context['emails'] = emails
+            channel_id = create_discord_channel(settings.DISCORD_TOKEN, settings.DISCORD_GUILD_ID , name, 'Тут описание каннала')
+            context['discord_url'] = create_discord_invite(settings.DISCORD_TOKEN, channel_id)
+
+            board_id, trello_url = create_trello_board(settings.TRELLO_API_TOKEN, settings.TRELLO_API_KEY, name)
+            create_trello_invite(settings.TRELLO_API_TOKEN, settings.TRELLO_API_KEY, board_id, emails)
+            context['trello_url'] = trello_url
+
     return render(request, 'invite.html', context=context)

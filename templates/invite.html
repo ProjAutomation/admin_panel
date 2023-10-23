@@ -16,19 +16,17 @@
           {{ form|crispy }}
           <button class="btn btn-primary" type="submit">Создать</button>
         </form>
+        {% if discord_url %}
+          <a href="{{ discord_url }}"><br>Discor<br></a>
+        {% endif %}
+        {% if trello_url %}
+          <a href="{{ trello_url }}">Trello<br></a>
+        {% endif %}
+        <p>{{ emails }}</p>
       </div>
+      
     </div>
-
-    {% comment %} <div class="row justify-content-center">
-      <form class="col-6" method="POST" action="{% url 'projects.invite' %}">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label for="emails" class="form-label">Email-ы студентов <mark>(пока руками, потом будут браться из базы)</mark></label>
-          <textarea name="emails" id="emails" class="form-control" rows="3">amiskov@ya.ru, amiskov@gmail.com</textarea>
-          <div class="form-text">Перечислите email-адреса через запятую.</div>
-        </div>
-        <button class="btn btn-primary">Отправить оповещение</button>
-      </form>
-    </div> {% endcomment %}
+    
   </div>
+  
 {% endblock %}
