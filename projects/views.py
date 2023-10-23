@@ -187,6 +187,6 @@ def invite(request):
     if request.method == 'POST':
         form = InvitationForm(request.POST)
         if form.is_valid():
-            
+            print("test")
     context = {'form': form}
     return render(request, 'invite.html', context=context)
